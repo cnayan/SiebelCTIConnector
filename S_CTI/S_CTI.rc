@@ -1,0 +1,65 @@
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+
+#if defined(__clang__)
+#elif defined(__GNUC__) || defined(__GNUG__)
+#elif defined(_MSC_VER)
+#include "winres.h"
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (India) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENN)
+#if defined(__clang__)
+//LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_INDIA
+#elif defined(__GNUC__) || defined(__GNUG__)
+//LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_INDIA
+#elif defined(_MSC_VER)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_INDIA
+#pragma code_page(1252)
+#endif
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_ERROR_CONNECT_MW    "ERROR: Siebel CTI failed to connect to middleware service."
+    IDS_MESSAGE_LOGIN    "Log In"
+    IDS_MESSAGE_LOGOUT    "Log Out"
+END
+
+#endif    // English (India) resources

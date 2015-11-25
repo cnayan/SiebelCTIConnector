@@ -1,0 +1,930 @@
+[Siebel]
+   CommServerVersion = "7.0"
+
+[Configuration Parameters]
+   AutoLogin                = "FALSE"
+   AutoLoginCmd             = "SignOnGroup"
+   DialingFilter.Rule001    = "720444->"
+   DialingFilter.Rule999    = "->91"
+   MultiTenancy             = "TRUE"
+   PreferenceLoginCmd       = "PreferenceLoginCmd"
+   PreferenceLogoutCmd      = "PreferenceLogoutCmd"
+   UpdateChannelStatusTable = "TRUE"
+
+[Profile:OUT_OF_BOX]
+   Driver = "S_CTI"
+
+   [Driver:S_CTI]
+      Library Name   = "S_CTI.dll"
+      Icon File      = "voice.gif"
+      Channel Type   = "Voice"
+      Outbound Flag  = "Y"
+      Interactive    = "Y"
+      Channel String = "Voice"
+      Inbound Flag   = "Y"
+
+	[Driver Parameters:S_CTI]
+		Driver:Configuration             = "S_CTI"
+		Driver:CTIMW_SERVER              = "192.168.1.105"  ; Change this to correct IP of the machine hosting CTI-middleware server.
+		Driver:CTIMW_SERVER_PORT         = "54321"          ; Set this to permissible port, used by the CTI-middleware server.
+		Service:DefaultAgentAvailState   = "MANUAL_IN"      ; It can be AUTO_IN or MANUAL_IN
+		Service:AgentID                  = "{@AgentId}"     ; The ID of the agent as configured by the Siebel admin. Leave it as is.
+
+[Command:02_MakeCallToSelectedPhone]
+   Description   = "Make call to "{@SelectedText}""
+   DeviceCommand = "MakeCall"
+   Hidden        = "TRUE"
+   CmdData       = "MakeCallToSelectedPhone"
+
+   [CmdData:MakeCallToSelectedPhone]
+      AttachContext               = "TRUE"
+      Param.CallNotifyText        = "Call from {@UserName}..."
+      Param.PhoneNumber           = "{@SelectedText:Lookup}"
+      RequiredField.@SelectedText = "?*"
+
+[Command:AnswerCallInAcceptGroup]
+   Description   = "Answer call"
+   DeviceCommand = "AnswerCall"
+   Hidden        = "TRUE"
+
+[Command:SendEmailGroup]
+   Description   = "Send email"
+   DeviceCommand = "@CreatePopupFrame"
+   Hidden        = "TRUE"
+   HotKey        = "F9"
+   CmdData       = "SendEmailGroup"
+
+   [CmdData:SendEmailGroup]
+      PostInvokeCommand = "SendEmail"
+
+[Command:SendFaxGroup]
+   Description   = "Send fax"
+   DeviceCommand = "@CreatePopupFrame"
+   Hidden        = "TRUE"
+   HotKey        = "Alt+F9"
+   CmdData       = "SendFaxGroup"
+
+   [CmdData:SendFaxGroup]
+      PostInvokeCommand = "SendFax"
+
+[Command:SendPage]
+   Hidden        = "TRUE"
+   ServiceMethod = "HTML Communication Client.SendCommunication"
+   CmdData       = "SendPage"
+
+   [CmdData:SendPage]
+      ServiceParam.CommType = "Page"
+
+[Command:TransferComplete]
+   Description   = "Complete Transfer"
+   DeviceCommand = "TransferComplete"
+   Hidden        = "TRUE"
+   MatchWorkType = "TRUE"
+
+[Command:WorkItemList]
+   DeviceCommand = "SetCurrentWorkItem"
+   Hidden        = "TRUE"
+   CmdData       = "ChangedWorkItemData"
+
+   [CmdData:ChangedWorkItemData]
+      Param.TrackingID = "{@SelectedWorkItem:DriverWorkTrackID}"
+
+[Command:AcceptWorkGroup]
+   Description   = "Answer call"
+   DeviceCommand = "AnswerCall"
+   Hidden        = "TRUE"
+
+[Command:ConferenceTransferGroup]
+   SubCommand_1 = "CompleteConferenceTransfer"
+   SubCommand_2 = "ConferenceTransferToPhone"
+   SubCommand_3 = "ConferenceTransferToEmployee"
+   SubCommand_4 = "ConferenceTransferToPopupEmployee"
+   Hidden       = "TRUE"
+   Comments     = "Conference Call"
+
+[Command:SignOffGroup]
+   Description   = "Log out of Nexgen"
+   DeviceCommand = "LogOut"
+   Hidden        = "TRUE"
+   CmdData       = "SignOffGroup"
+
+   [CmdData:SignOffGroup]
+      Param.ACDQueue = "{@QueueList}"
+
+[Command:ViewCallObject]
+   DeviceCommand = "@ViewCallObject"
+   Title         = "View Call"
+   Comments      = "View Call"
+   CmdData       = "ViewCallObject"
+
+   [CmdData:ViewCallObject]
+      Param.View = "Activity List View"
+
+[Command:InitiateWorkGroup]
+   SubCommand_1    = "01_MakeCallToPhone"
+   SubCommand_3    = "05_MakeCallToAccount"
+   SubCommand_4    = "10_MakeCallToActivityContact"
+   SubCommand_5    = "15_MakeCallToCampaignContact"
+   SubCommand_6    = "20_MakeCallToContact"
+   SubCommand_7    = "30_MakeCallToSRContact"
+   SubCommand_996  = "SendEmailGroup"
+   SubCommand_997  = "SendSMSGroup"
+   SubCommand_998  = "SendPageGroup"
+   SubCommand_999  = "SendFaxGroup"
+   SubCommand_1000 = "100_MakeCallToPopupEmployee"
+   Description     = "Initiate New Work or Call"
+   Hidden          = "TRUE"
+   Comments        = "Initiate New Work or Call"
+
+[Command:MakeCallGroupInMenu]
+   SubCommand_1    = "01_MakeCallToPhone"
+   SubCommand_3    = "05_MakeCallToAccount"
+   SubCommand_4    = "10_MakeCallToActivityContact"
+   SubCommand_5    = "15_MakeCallToCampaignContact"
+   SubCommand_6    = "20_MakeCallToContact"
+   SubCommand_7    = "30_MakeCallToSRContact"
+   SubCommand_1000 = "100_MakeCallToPopupEmployee"
+   Hidden          = "FALSE"
+   HotKey          = "Alt+F7"
+   MenuPosition    = "6"
+   Title           = "Make Call"
+
+[Command:NotReadyWithPopup]
+   Description   = "Aux Reason Applet"
+   DeviceCommand = "SetAgentState"
+   Hidden        = "FALSE"
+   MenuPosition  = "98"
+   Comments      = "Aux Reason Applet"
+   CmdData       = "NotReadyWithPopup"
+
+   [CmdData:NotReadyWithPopup]
+      Param.Description = "[Value]"
+      Param.Mode        = "[Name]"
+      SelectApplet      = "Transfer Multiple LOV Popup Applet"
+      SelectBusComp     = "List Of Values"
+      SelectBusObj      = "List Of Values"
+      SelectParam       = "TRUE"
+      SelectQuerySpec   = "[Type] = 'REASON_CODE' AND [Active] ='Y'"
+      SelectTitle       = "Please select the reason for changing status to Aux Work"
+
+[Command:PreferenceLoginCmd]
+   DeviceCommand = "LogIn"
+   Hidden        = "TRUE"
+   Comments      = "Login to selected ACD queues"
+   CmdData       = "PreferenceLoginCmd"
+
+   [CmdData:PreferenceLoginCmd]
+      Param.AgentID       = "{@AgentId}"
+      Param.AgentPassword = "{@AgentPin}"
+
+[Command:ReleaseActivePhoneCall]
+   Description   = "Release call"
+   DeviceCommand = "ReleaseCall"
+   Hidden        = "TRUE"
+
+[Command:05_MakeCallToAccount]
+   Description   = "Make Call to Account"
+   DeviceCommand = "MakeCall"
+   Hidden        = "TRUE"
+   LocalMenu     = "TRUE"
+   MenuPosition  = "05"
+   Title         = "Make Call to Account"
+   Comments      = "Make Call to Account"
+   CmdData       = "MakeCallToAccount"
+
+   [CmdData:MakeCallToAccount]
+      BusComp                           = "Account"
+      Param.Account_Id                  = "{Account.Id}"
+      Param.PhoneNumber                 = "{Main Phone Number:Lookup}"
+      RequiredField.'Main Phone Number' = "?*"
+
+[Command:CompleteConsultativeTransfer]
+   Description   = "Complete consultative transfer of call"
+   DeviceCommand = "TransferComplete"
+   Hidden        = "TRUE"
+   MatchWorkType = "TRUE"
+   Comments      = "Complete consultative transfer of call"
+
+[Command:ConsultativeTransferToPhone]
+   Description   = "Consultative Transfer to {@Phone}"
+   DeviceCommand = "TransferInit"
+   Hidden        = "TRUE"
+   OnEditControl = "TRUE"
+   Comments      = "Consultative Transfer to {@Phone}"
+   CmdData       = "ConsultativeTransferToPhone"
+
+   [CmdData:ConsultativeTransferToPhone]
+      AttachContext        = "TRUE"
+      Param.PhoneNumber    = "{@Phone:PhoneTypeLookup}"
+      Param.TrackingId     = "{@SelectedWorkItem:DriverWorkTrackID}"
+      RequiredField.@Phone = "?*"
+
+[Command:NotReadyGroup]
+   DeviceCommand = "ChangeNotReadyState"
+   Hidden        = "TRUE"
+
+[Command:SendDTMF]
+   Description   = "Send DTMF Tones"
+   DeviceCommand = "SendDTMF"
+   HotKey        = "Ctrl+F11"
+   MenuPosition  = "99"
+   Title         = "Send DTMF"
+   CmdData       = "SendDTMFCmdData"
+
+   [CmdData:SendDTMFCmdData]
+      SelectApplet  = "Send DTMF Applet"
+      SelectBusComp = "Send DTMF"
+      SelectBusObj  = "Send DTMF"
+      SelectParam   = "TRUE"
+      SelectTitle   = "Dial Pad"
+
+[Command:BlindTransferToEmployee]
+   Description   = "Mute Transfer to Employee"
+   DeviceCommand = "TransferMute"
+   Hidden        = "TRUE"
+   Comments      = "Mute Transfer to Employee"
+   CmdData       = "BlindTransferToEmployee"
+
+   [CmdData:BlindTransferToEmployee]
+      AttachContext           = "TRUE"
+      BusComp                 = "Employee"
+      Param.PhoneNumber       = "{Phone #:Lookup}"
+      Param.TrackingId        = "{@SelectedWorkItem:DriverWorkTrackID}"
+      RequiredField.'Phone #' = "?*"
+
+[Command:RetrieveWorkGroup]
+   Description   = "Retrieve held call"
+   DeviceCommand = "RetrieveCall"
+   Hidden        = "TRUE"
+
+[Command:100_MakeCallToPopupEmployee]
+   Description   = "Make call to employee selected from popup list"
+   DeviceCommand = "MakeCall"
+   Hidden        = "TRUE"
+   MenuPosition  = "100"
+   Title         = "Make Call"
+   Comments      = "Make call to employee selected from popup list"
+   CmdData       = "MakeCallToPopupEmployee"
+
+   [CmdData:MakeCallToPopupEmployee]
+      AttachContext        = "TRUE"
+      Param.CallNotifyText = "Make call from {@UserName}..."
+      Param.PhoneNumber    = "[Phone #:Lookup]"
+      SelectApplet         = "ACD Transfer Call Applet"
+      SelectBusComp        = "Employee"
+      SelectBusObj         = "Employee"
+      SelectParam          = "TRUE"
+      SelectTitle          = "Make Call to:"
+
+[Command:BlindTransferGroup]
+   SubCommand_1 = "BlindTransferToEmployee"
+   SubCommand_2 = "BlindTransferToPhone"
+   SubCommand_3 = "BlindTransferToPopupEmployee"
+   Hidden       = "TRUE"
+   Comments     = "Mute transfer Call"
+
+[Command:CompleteConferenceTransfer]
+   Description   = "Conference all parties together"
+   DeviceCommand = "ConferenceComplete"
+   Hidden        = "TRUE"
+   MatchWorkType = "TRUE"
+   Comments      = "Conference all parties together"
+
+[Command:ConferenceTransferToEmployee]
+   Description   = "Conference Transfer to Employee"
+   DeviceCommand = "ConferenceInit"
+   Hidden        = "TRUE"
+   MatchWorkType = "TRUE"
+   Comments      = "Conference Transfer to Employee"
+   CmdData       = "ConferenceTransferToEmployee"
+
+   [CmdData:ConferenceTransferToEmployee]
+      AttachContext           = "TRUE"
+      BusComp                 = "Employee"
+      Param.PhoneNumber       = "{Phone #:Lookup}"
+      Param.TrackingId        = "{@SelectedWorkItem:DriverWorkTrackID}"
+      RequiredField.'Phone #' = "?*"
+
+[Command:PreferenceLogoutCmd]
+   DeviceCommand = "LogOut"
+   Hidden        = "TRUE"
+   Comments      = "Logout from selected ACD queues"
+   CmdData       = "PreferenceLogoutCmd"
+
+   [CmdData:PreferenceLogoutCmd]
+      Param.ACDQueue = "{@SelectedQueue}"
+
+[Command:SendPageGroup]
+   Description   = "Send page"
+   DeviceCommand = "@CreatePopupFrame"
+   Hidden        = "TRUE"
+   HotKey        = "Shift+F9"
+   CmdData       = "SendPageGroup"
+
+   [CmdData:SendPageGroup]
+      PostInvokeCommand = "SendPage"
+
+[Command:SuspendCall]
+   Description   = "Place call on hold"
+   DeviceCommand = "HoldCall"
+   Hidden        = "TRUE"
+   MatchWorkType = "TRUE"
+
+[Command:10_MakeCallToActivityContact]
+   Description   = "Make Call to Activity Contact"
+   DeviceCommand = "MakeCall"
+   Hidden        = "TRUE"
+   LocalMenu     = "TRUE"
+   MenuPosition  = "10"
+   Title         = "Make Call to Activity Contact"
+   Comments      = "Make Call to Activity Contact"
+   CmdData       = "MakeCallToActivityContact"
+
+   [CmdData:MakeCallToActivityContact]
+      BusComp                       = "Action"
+      Param.Contact_Id              = "{Contact.Id}"
+      Param.PhoneNumber             = "{Contact Phone:Lookup}"
+      RequiredField.'Contact Phone' = "?*"
+
+[Command:ConferenceTransferToPhone]
+   Description   = "Conference Transfer to {@Phone}"
+   DeviceCommand = "ConferenceInit"
+   Hidden        = "TRUE"
+   MatchWorkType = "TRUE"
+   OnEditControl = "TRUE"
+   Comments      = "Conference Transfer to {@Phone}"
+   CmdData       = "ConferenceTransferToPhone"
+
+   [CmdData:ConferenceTransferToPhone]
+      AttachContext        = "TRUE"
+      Param.PhoneNumber    = "{@Phone:PhoneTypeLookup}"
+      Param.TrackingId     = "{@SelectedWorkItem:DriverWorkTrackID}"
+      RequiredField.@Phone = "?*"
+
+[Command:ConsultativeTransferToEmployee]
+   Description   = "Consultative Transfer to Employee"
+   DeviceCommand = "TransferInit"
+   Hidden        = "TRUE"
+   Comments      = "Consultative Transfer to Employee"
+   CmdData       = "ConsultativeTransferToEmployee"
+
+   [CmdData:ConsultativeTransferToEmployee]
+      AttachContext           = "TRUE"
+      BusComp                 = "Employee"
+      Param.PhoneNumber       = "{Phone #:Lookup}"
+      Param.TrackingId        = "{@SelectedWorkItem:DriverWorkTrackID}"
+      RequiredField.'Phone #' = "?*"
+
+[Command:SendEmail]
+   Hidden        = "TRUE"
+   ServiceMethod = "HTML Communication Client.SendCommunication"
+   CmdData       = "SendEmail"
+
+   [CmdData:SendEmail]
+      ServiceParam.CommType = "Email"
+
+[Command:ConferenceTransferToPopupEmployee]
+   Description   = "Conference Transfer to Popup Employee"
+   DeviceCommand = "ConferenceInit"
+   Hidden        = "TRUE"
+   MatchWorkType = "TRUE"
+   Title         = "&Conference Call"
+   Comments      = "Conference Transfer to Popup Employee"
+   CmdData       = "ConferenceTransferToPopupEmployee"
+
+   [CmdData:ConferenceTransferToPopupEmployee]
+      AttachContext     = "TRUE"
+      Param.PhoneNumber = "[Phone #:Lookup]"
+      Param.TrackingId  = "{@SelectedWorkItem:DriverWorkTrackID}"
+      SelectApplet      = "ACD Transfer Call Applet"
+      SelectBusComp     = "Employee"
+      SelectBusObj      = "Employee"
+      SelectParam       = "TRUE"
+      SelectTitle       = "Begin Conference Transfer to:"
+
+[Command:ConsultativeTransferToPopupEmployee]
+   Description   = "Consultative Transfer to Popup Employee"
+   DeviceCommand = "TransferInit"
+   Hidden        = "TRUE"
+   Title         = "&ConsultativeCall"
+   Comments      = "Consultative Transfer to Popup Employee"
+   CmdData       = "ConsultativeTransferToPopupEmployee"
+
+   [CmdData:ConsultativeTransferToPopupEmployee]
+      AttachContext     = "TRUE"
+      Param.PhoneNumber = "[Phone #:Lookup]"
+      Param.TrackingId  = "{@SelectedWorkItem:DriverWorkTrackID}"
+      SelectApplet      = "ACD Transfer Call Applet"
+      SelectBusComp     = "Employee"
+      SelectBusObj      = "Employee"
+      SelectParam       = "TRUE"
+      SelectTitle       = "Begin Consultative Transfer to:"
+
+[Command:MakeCallGroupInLocalMenu]
+   SubCommand_1    = "01_MakeCallToPhone"
+   SubCommand_3    = "05_MakeCallToAccount"
+   SubCommand_4    = "10_MakeCallToActivityContact"
+   SubCommand_5    = "15_MakeCallToCampaignContact"
+   SubCommand_6    = "20_MakeCallToContact"
+   SubCommand_7    = "30_MakeCallToSRContact"
+   SubCommand_1000 = "100_MakeCallToPopupEmployee"
+   Hidden          = "TRUE"
+   LocalMenu       = "TRUE"
+   MenuPosition    = "5"
+   Title           = "Make Call"
+
+[Command:ChangeBusyStateGroup]
+   DeviceCommand = "ChangeBusyState"
+   Hidden        = "TRUE"
+
+[Command:SendSMSGroup]
+   Description   = "Send wireless message"
+   DeviceCommand = "@CreatePopupFrame"
+   Hidden        = "TRUE"
+   HotKey        = "Ctrl+F9"
+   CmdData       = "SendSMSGroup"
+
+   [CmdData:SendSMSGroup]
+      PostInvokeCommand = "SendSMS"
+
+[Command:SuspendWorkGroup]
+   Description   = "Place call on hold"
+   DeviceCommand = "HoldCall"
+   Hidden        = "TRUE"
+   CmdData       = "SuspendWorkGroup"
+
+   [CmdData:SuspendWorkGroup]
+      Param.TrackingID = "{@SelectedWorkItem:DriverWorkTrackID}"
+
+[Command:ConsultativeTransferGroup]
+   SubCommand_1 = "CompleteConsultativeTransfer"
+   SubCommand_2 = "ConsultativeTransferToPhone"
+   SubCommand_3 = "ConsultativeTransferToEmployee"
+   SubCommand_4 = "ConsultativeTransferToPopupEmployee"
+   Hidden       = "TRUE"
+   Comments     = "Consultative Call transfer"
+
+[Command:SendSMS]
+   Hidden        = "TRUE"
+   ServiceMethod = "HTML Communication Client.SendCommunication"
+   CmdData       = "SendSMS"
+
+   [CmdData:SendSMS]
+      ServiceParam.CommType = "Wireless"
+
+[Command:SendFax]
+   Hidden        = "TRUE"
+   ServiceMethod = "HTML Communication Client.SendCommunication"
+   CmdData       = "SendFax"
+
+   [CmdData:SendFax]
+      ServiceParam.CommType = "Fax"
+
+[Command:SignOnGroup]
+   Description   = "Login to CTI-Server"
+   DeviceCommand = "LogIn"
+   Hidden        = "TRUE"
+   CmdData       = "SignOnGroup"
+
+   [CmdData:SignOnGroup]
+      Param.ACDQueue = "{@QueueList}"
+      Param.AgentId  = "{@AgentId}"
+      Param.AgentPin = "{@AgentPin}"
+
+[Command:15_MakeCallToCampaignContact]
+   Description   = "Make Call to Campaign Contact"
+   DeviceCommand = "MakeCall"
+   Hidden        = "TRUE"
+   LocalMenu     = "TRUE"
+   MenuPosition  = "15"
+   Title         = "Make Call to Campaign Contact"
+   Comments      = "Make Call to Campaign Contact"
+   CmdData       = "MakeCallToCampaignContact"
+
+   [CmdData:MakeCallToCampaignContact]
+      BusComp                                 = "Campaign List Contact"
+      Param.PhoneNumber                       = "{Calculated Work Phone #:Lookup}"
+      RequiredField.'Calculated Work Phone #' = "?*"
+
+[Command:ResetStateGroup]
+   DeviceCommand = "ResetState"
+   Hidden        = "TRUE"
+
+[Command:SetAgentState]
+   Description   = "Set Agent State"
+   DeviceCommand = "SetAgentState"
+   Hidden        = "FALSE"
+   MenuPosition  = "98"
+   Comments      = "Set Agent State Applet"
+   CmdData       = "SetAgentState"
+
+   [CmdData:SetAgentState]
+      Param.Description = "[Description:Number]"
+      Param.Mode        = "[Mode:Number]"
+      SelectApplet      = "Agent State Applet"
+      SelectBusComp     = "Agent State"
+      SelectBusObj      = "Agent State"
+      SelectParam       = "TRUE"
+      SelectTitle       = "Set Agent State to"
+
+[Command:01_MakeCallToPhone]
+   Description   = "Make Call to {@Phone}"
+   DeviceCommand = "MakeCall"
+   Hidden        = "TRUE"
+   OnEditControl = "TRUE"
+   Order         = "1"
+   Title         = "Make Call to {@Phone}"
+   Comments      = "Make Call to {@Phone}"
+   CmdData       = "MakeCallToPhone"
+
+   [CmdData:MakeCallToPhone]
+      AttachContext        = "TRUE"
+      Param.PhoneNumber    = "{@Phone}"
+      RequiredField.@Phone = "?*"
+
+[Command:BlindTransferToPhone]
+   Description   = "Mute Transfer to {@Phone}"
+   DeviceCommand = "TransferMute"
+   Hidden        = "TRUE"
+   OnEditControl = "TRUE"
+   Comments      = "Mute Transfer to {@Phone}"
+   CmdData       = "BlindTransferToPhone"
+
+   [CmdData:BlindTransferToPhone]
+      AttachContext        = "TRUE"
+      Param.PhoneNumber    = "{@Phone:PhoneTypeLookup}"
+      Param.TrackingId     = "{@SelectedWorkItem:DriverWorkTrackID}"
+      RequiredField.@Phone = "?*"
+
+[Command:BlindTransferToPopupEmployee]
+   Description   = "Mute Transfer to Popup Employee"
+   DeviceCommand = "TransferMute"
+   Hidden        = "TRUE"
+   MatchWorkType = "TRUE"
+   Title         = "&Mute Transfer"
+   Comments      = "Mute Transfer to Popup Employee"
+   CmdData       = "BlindTransferToPopupEmployee"
+
+   [CmdData:BlindTransferToPopupEmployee]
+      AttachContext     = "TRUE"
+      Param.PhoneNumber = "[Phone #:Lookup]"
+      Param.TrackingId  = "{@SelectedWorkItem:DriverWorkTrackID}"
+      SelectApplet      = "ACD Transfer Call Applet"
+      SelectBusComp     = "Employee"
+      SelectBusObj      = "Employee"
+      SelectParam       = "TRUE"
+      SelectTitle       = "Begin Mute Transfer to:"
+
+[Command:ForwardWorkGroup]
+   CmdChannelOnFocus = "TRUE"
+   DeviceCommand     = "ForwardCall"
+   Hidden            = "TRUE"
+
+[Command:ReleaseWorkGroup]
+   DeviceCommand = "ReleaseCall"
+   Hidden        = "TRUE"
+
+[Command:ResumeWorkGroup]
+   DeviceCommand = "UnHoldCall"
+   Hidden        = "TRUE"
+   CmdData       = "ResumeWorkGroup"
+
+   [CmdData:ResumeWorkGroup]
+      Param.TrackingID = "{@SelectedWorkItem:DriverWorkTrackID}"
+
+[Command:20_MakeCallToContact]
+   Description   = "Make Call to Contact"
+   DeviceCommand = "MakeCall"
+   Hidden        = "TRUE"
+   LocalMenu     = "TRUE"
+   MenuPosition  = "20"
+   Title         = "Make Call to Contact"
+   Comments      = "Make Call to Contact"
+   CmdData       = "MakeCallToContact"
+
+   [CmdData:MakeCallToContact]
+      BusComp                      = "Contact"
+      Param.Contact_Id             = "{Contact.Id}"
+      Param.PhoneNumber            = "{Work Phone #:Lookup}"
+      RequiredField.'Work Phone #' = "?*"
+
+[Command:30_MakeCallToSRContact]
+   Description   = "Make call to service request contact"
+   DeviceCommand = "MakeCall"
+   Hidden        = "TRUE"
+   CmdData       = "MakeCallToSRContact"
+
+   [CmdData:MakeCallToSRContact]
+      BusComp                                = "Service Request"
+      OnField                                = "Contact Business Phone"
+      Param.PhoneNumber                      = "{Contact Business Phone:Lookup}"
+      RequiredField.'Contact Business Phone' = "?*"
+
+[Command:CompleteConferenceCall]
+   Description   = "Conference all parties together"
+   DeviceCommand = "ConferenceComplete"
+   Hidden        = "TRUE"
+   MatchWorkType = "TRUE"
+   Comments      = "Conference all parties together"
+
+[Command:MakeCallGroup]
+   SubCommand_1    = "01_MakeCallToPhone"
+   SubCommand_3    = "05_MakeCallToAccount"
+   SubCommand_4    = "10_MakeCallToActivityContact"
+   SubCommand_5    = "15_MakeCallToCampaignContact"
+   SubCommand_6    = "20_MakeCallToContact"
+   SubCommand_7    = "30_MakeCallToSRContact"
+   SubCommand_1000 = "100_MakeCallToPopupEmployee"
+   Hidden          = "TRUE"
+
+[CmdData:ForwardWorkItemData]
+   Param.PhoneNumber           = "{@SelectedText:Lookup}"
+   RequiredField.@SelectedText = "?*"
+
+[CmdData:LogOutData]
+   Param.ACDAgentID = "{@AgentId}"
+   Param.Agent      = "{@UserName}"
+
+[CmdData:ChangeAgentStatusData]
+   Param.Agent          = "{@UserName}"
+   Param.AgentExtension = "{@DNList}"
+   Param.AgentStatus    = "AVAILABLE"
+
+[CmdData:LogInData]
+   Param.Agent Password = "{@AgentPin}"
+   Param.AgentExtension = "{@DNList}"
+   Param.AgentID        = "{@AgentId}"
+
+[EventHandler:10_OutboundCallToSRContact]
+   # THIS IS USED TO CREATE OUTBOUND = "ACTIVITIES FOR CALLS TO SR CONTACTS"
+   Filter.ConnectType                = "OUTBOUND"
+   Filter.Contact_Id                 = "?*"
+   Filter.SR_Id                      = "?*"
+   DeviceEvent                       = "OnConnect"
+   Response                          = "OutboundCallToSRContact"
+   Order                             = "10"
+
+   [EventResponse:OutboundCallToSRContact]
+      Log = "OutboundCallToSRContact"
+
+      [EventLog:OutboundCallToSRContact]
+         #PERFORMED DURING OUTBOUND CALL TO SR CONTACT; = "CREATES ASSOCIATED ACTIVITY RECORD"
+         AfterCall.'ACD Call Duration'                  = "{@WorkDuration}"
+         BusComp                                        = "Action"
+         BusObj                                         = "Contact"
+         Display                                        = "TRUE"
+         LogField.'Activity SR Id'                      = "{SR_Id}"
+         LogField.'Contact Id'                          = "{Contact_Id}"
+         LogField.Alarm                                 = "N"
+         LogField.Description                           = "Outbound Call to {DNIS}"
+         LogField.Status                                = "Done"
+         LogField.Type                                  = "Call - Outbound"
+
+[EventHandler:11_OutboundCallToContact]
+   # THIS IS USED TO CREATE OUTBOUND = "ACTIVITIES FOR CALLS TO CONTACTS"
+   Filter.ConnectType                = "OUTBOUND"
+   Filter.Contact_Id                 = "?*"
+   DeviceEvent                       = "OnConnect"
+   Response                          = "OutboundCallToContact"
+   Order                             = "11"
+
+   [EventResponse:OutboundCallToContact]
+      Log = "OutboundCallToContact"
+
+      [EventLog:OutboundCallToContact]
+         #PERFORMED DURING OUTBOUND CALL TO CONTACT; = "CREATES ASSOCIATED ACTIVITY RECORD"
+         AfterCall.'ACD Call Duration'               = "{@WorkDuration}"
+         BusComp                                     = "Action"
+         BusObj                                      = "Contact"
+         Display                                     = "TRUE"
+         LogField.'Contact Id'                       = "{Contact_Id}"
+         LogField.Alarm                              = "N"
+         LogField.Description                        = "Outbound Call to {DNIS}"
+         LogField.Status                             = "Done"
+         LogField.Type                               = "Call - Outbound"
+
+[EventHandler:07_InboundSRIVR]
+   Filter.DNIS = "45?4"
+   Filter.UUI  = "?*"
+   DeviceEvent = "OnConnect"
+   Response    = "InboundSRIVR"
+   Order       = "7"
+
+   [EventResponse:InboundSRIVR]
+      FindDialog          = "Corporate Contact"
+      FindField.Last Name = "Ask caller for name"
+      MultiView           = "Account List View"
+      QueryBusComp        = "Account"
+      QueryBusObj         = "Account"
+      QuerySpec           = "'Main Phone Number' like '*{UUI}'"
+      ServiceMethod       = "Persistent Customer Dashboard.Update Dashboard from CTI"
+      ServiceParam.Field  = "Work Phone #"
+      SingleView          = "Account Detail - Activities View"
+      SingleLog           = "SRIVRCallFound"
+      Log                 = "SRIVRCallNotFound"
+
+      [EventLog:SRIVRCallFound]
+         AfterCall.'ACD Call Duration' = "{@CallDuration}"
+         BusComp                       = "Action"
+         BusObj                        = "Contact"
+         Display                       = "TRUE"
+         LogField.'Account Id'         = "{Account.'Parent Account Id'}"
+         LogField.'Call Id'            = "{UCID}"
+         LogField.Description          = "Inbound call from {UUI}"
+         LogField.Status               = "Done"
+         LogField.Type                 = "Call - Inbound VRU"
+
+      [EventLog:SRIVRCallNotFound]
+         AfterCall.'ACD Call Duration' = "{@CallDuration}"
+         BusComp                       = "Action"
+         BusObj                        = "Contact"
+         Display                       = "TRUE"
+         LogField.'Call Id'            = "{UCID}"
+         LogField.Description          = "Inbound call from {UUI}"
+         LogField.Status               = "Done"
+         LogField.Type                 = "Call - Inbound VRU"
+
+[EventHandler:02_InboundCallWithDigits]
+   # USE THIS IF COLLECTING DIGITS = "(i.e. ACCOUNT NUMBER) VIA THE CALL SERVICE"
+   Filter.CollectedDigits          = "?*"
+   Filter.ConnectType              = "INBOUND"
+   DeviceEvent                     = "OnConnect"
+   Response                        = "InboundCallWithDigits"
+   Order                           = "2"
+
+   [EventResponse:InboundCallWithDigits]
+      #PERFORMS A DIGITS LOOKUP...IF FOUND: SINGLE OR MULTI = "VIEW WITH SINGLE OR MULTI ACITVITY RECS;  ELSE FIND DIALOG"
+      FindDialog                                            = "Corporate Contact"
+      FindField.Last Name                                   = "PIN Not Found"
+      MultiView                                             = "Contact List View"
+      QueryBusComp                                          = "Contact"
+      QueryBusObj                                           = "Contact"
+      QuerySpec                                             = "'Last Name' = '{CollectedDigits}'"
+      SingleView                                            = "Contact Detail View"
+      SingleLog                                             = "InboundCallFound_DIGITS"
+      Log                                                   = "InboundCallNotFoundForFindBox_DIGITS"
+      MultiLog                                              = "InboundCallNotFound_DIGITS"
+
+      [EventLog:InboundCallFound_DIGITS]
+         #PERFORMED IF SIEBEL RECORD FOUND; CREATES = "ASSOCIATED  ACTIVITY RECORD"
+         AfterCall.'ACD Call Duration'              = "{@WorkDuration}"
+         BusComp                                    = "Action"
+         BusObj                                     = "Contact"
+         Display                                    = "TRUE"
+         LogField.'Contact Id'                      = "{Contact.Id}"
+         LogField.Alarm                             = "N"
+         LogField.Description                       = "Inbound Call digits entered {CollectedDigits}"
+         LogField.Status                            = "Done"
+         LogField.Type                              = "Call - Inbound"
+
+      [EventLog:InboundCallNotFoundForFindBox_DIGITS]
+         #PERFORMED IF SIEBEL RECORD NOT FOUND; CREATES = "NON-ASSOCIATED  ACTIVITY RECORD"
+         AfterCall.'ACD Call Duration'                  = "{@WorkDuration}"
+         BusComp                                        = "Action"
+         BusObj                                         = "Contact"
+         Display                                        = "TRUE"
+         LogField.Alarm                                 = "N"
+         LogField.Description                           = "Inbound Call digits entered {CollectedDigits}"
+         LogField.Status                                = "Done"
+         LogField.Type                                  = "Call - Inbound"
+
+      [EventLog:InboundCallNotFound_DIGITS]
+         #PERFORMED IF SIEBEL RECORD NOT FOUND; CREATES = "NON-ASSOCIATED  ACTIVITY RECORD"
+         AfterCall.'ACD Call Duration'                  = "{@WorkDuration}"
+         BusComp                                        = "Action"
+         BusObj                                         = "Contact"
+         Display                                        = "TRUE"
+         LogField.Alarm                                 = "N"
+         LogField.Description                           = "Inbound Call digits entered {CollectedDigits}"
+         LogField.Status                                = "Done"
+         LogField.Type                                  = "Call - Inbound"
+
+[EventHandler:1_InboundChatWithUUI]
+   Filter.ConnectType = "INBOUND"
+   Filter.DNIS        = "3420"
+   Filter.UUI         = "?*"
+   DeviceEvent        = "OnConnect"
+   Response           = "InboundChatWithUUI"
+   Order              = "1"
+
+   [EventResponse:InboundChatWithUUI]
+      FindDialog         = "Corporate Contact"
+      FindField.LastName = "Ask caller for name"
+      MultiView          = "Account List View"
+      QueryBusComp       = "Account"
+      QueryBusObj        = "Account"
+      QuerySpec          = "'Main Phone Number' like '*{UUI}'"
+      SingleView         = "Service Account List View"
+      SingleLog          = "InboundChatWithUUI"
+
+      [EventLog:InboundChatWithUUI]
+         AfterCall.'ACD Call Duration' = "{@WorkDuration}"
+         BusComp                       = "Action"
+         BusObj                        = "Account"
+         Display                       = "TRUE"
+         LogField.Alarm                = "N"
+         LogField.Description          = "Web Chat Account number entered: {UUI}"
+         LogField.Status               = "Done"
+         LogField.Type                 = "Web Chat - Inbound"
+
+[EventHandler:12_OutboundCallToAccount]
+   #THIS IS USED TO CREATE OUTBOUND = "ACTIVITIES FOR CALLS TO ACCOUNTS"
+   Filter.Account_Id                = "?*"
+   Filter.ConnectType               = "OUTBOUND"
+   DeviceEvent                      = "OnConnect"
+   Response                         = "OutboundCallToAccount"
+   Order                            = "12"
+
+   [EventResponse:OutboundCallToAccount]
+      Log = "OutboundCallToAccount"
+
+      [EventLog:OutboundCallToAccount]
+         #PERFORMED DURING OUTBOUND CALL TO ACCOUNT; = "CREATES ASSOCIATED ACTIVITY RECORD"
+         AfterCall.'ACD Call Duration'               = "{@WorkDuration}"
+         BusComp                                     = "Action"
+         BusObj                                      = "Contact"
+         Display                                     = "TRUE"
+         LogField.'Account Id'                       = "{Account_Id}"
+         LogField.Alarm                              = "N"
+         LogField.Description                        = "Outbound Call to {DNIS}"
+         LogField.Status                             = "Done"
+         LogField.Type                               = "Call - Outbound"
+
+[EventHandler:01_TransferWithBookmark]
+   # USE THIS TO CAPTURE BOOKMARK = "SCREEN TRANSFERS"
+   Filter.ConnectType             = "INBOUND"
+   Filter.SiebelViewBmk           = "?????*"
+   DeviceEvent                    = "OnConnect"
+   Response                       = "TransferWithBookmark"
+   Order                          = "1"
+
+   [EventResponse:TransferWithBookmark]
+      #PERFORMED IF BOOKMARK TRANSFER RECEIVED; = "POPS SCREEN, CREATES AN ACTIVITY"
+      UseCtxData                                = "TRUE"
+      Log                                       = "TransferWithBookmark"
+
+      [EventLog:TransferWithBookmark]
+         #CALLED FROM BOOKMARK TRANSFER RESPONSE; = "CREATES A NON-ASSOCIATED ACTIVITY"
+         AfterCall.'ACD Call Duration'            = "{@WorkDuration}"
+         BusComp                                  = "Action"
+         BusObj                                   = "Contact"
+         Display                                  = "TRUE"
+         LogField.Alarm                           = "N"
+         LogField.Description                     = "{CallNotifyText}"
+         LogField.Status                          = "Done"
+         LogField.Type                            = "Call - Inbound"
+
+[EventHandler:03_InboundCallWithANI]
+   # THIS WILL BE USED TO LOOK UP THE = "CALLERS 10 DIGIT ANI (does not look up agent extensions)"
+   Filter.ANI                         = "???*"
+   Filter.ConnectType                 = "INBOUND"
+   DeviceEvent                        = "OnConnect"
+   Response                           = "InboundCallWithANI"
+   Order                              = "3"
+
+   [EventResponse:InboundCallWithANI]
+      #PERFORMS AN ANI LOOKUP...IF FOUND: SINGLE OR MULTI = "VIEW WITH SINGLE OR MULTI ACITVITY RECS;  ELSE FIND DIALOG"
+      FindDialog                                          = "Corporate Contact"
+      FindField.Last Name                                 = "Ask Caller for Name"
+      MultiView                                           = "Contact List View"
+      QueryBusComp                                        = "Contact"
+      QueryBusObj                                         = "Contact"
+      QuerySpec                                           = "'Work Phone #' = '650477{ANI}'"
+      SingleView                                          = "Contact Detail View"
+      SingleLog                                           = "InboundCallFound_ANI"
+      Log                                                 = "InboundCallNotFoundForFindBox_ANI"
+      MultiLog                                            = "InboundCallNotFound_ANI"
+
+      [EventLog:InboundCallFound_ANI]
+         #PERFORMED IF SIEBEL RECORD FOUND; CREATES = "ASSOCIATED  ACTIVITY RECORD"
+         AfterCall.'ACD Call Duration'              = "{@WorkDuration}"
+         BusComp                                    = "Action"
+         BusObj                                     = "Contact"
+         Display                                    = "TRUE"
+         LogField.'Contact Id'                      = "{Contact.Id}"
+         LogField.Alarm                             = "N"
+         LogField.Description                       = "Inbound Call from {ANI}"
+         LogField.Status                            = "Done"
+         LogField.Type                              = "Call - Inbound"
+
+      [EventLog:InboundCallNotFoundForFindBox_ANI]
+         #PERFORMED IF SIEBEL RECORD NOT FOUND; CREATES = "NON-ASSOCIATED  ACTIVITY RECORD"
+         AfterCall.'ACD Call Duration'                  = "{@WorkDuration}"
+         BusComp                                        = "Action"
+         BusObj                                         = "Contact"
+         Display                                        = "TRUE"
+         LogField.Alarm                                 = "N"
+         LogField.Description                           = "Inbound Call from {ANI}"
+         LogField.Status                                = "Done"
+         LogField.Type                                  = "Call - Inbound"
+
+      [EventLog:InboundCallNotFound_ANI]
+         #PERFORMED IF SIEBEL RECORD NOT FOUND; CREATES = "NON-ASSOCIATED  ACTIVITY RECORD"
+         AfterCall.'ACD Call Duration'                  = "{@WorkDuration}"
+         BusComp                                        = "Action"
+         BusObj                                         = "Contact"
+         Display                                        = "TRUE"
+         LogField.Alarm                                 = "N"
+         LogField.Description                           = "Inbound Call from {ANI}"
+         LogField.Status                                = "Done"
+         LogField.Type                                  = "Call - Inbound"
