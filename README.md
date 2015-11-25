@@ -1,5 +1,5 @@
-Siebel Call Center Connector
-============================
+Siebel CTI Connector Driver for Call Center application
+========================================================
 
 SCAPI implementation for a Call Center Communications Driver, to connect it to a PBX.
 
