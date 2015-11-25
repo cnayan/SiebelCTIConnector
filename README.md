@@ -8,11 +8,13 @@ declarations as described by Siebel CTI Administration Guide's section
 "Developing a Communications Driver".
 
 **Motivation**
+
 This may be too late, as there are many professional products already available
 in market, but integrating with Siebel has been a black box area, and I mean to
 simplify/demystify it.
 
 **Requirements**
+
 Software required (and tested on "Siebel Innovation Pack 2013" with):
 * IIS for Windows 2012 Server
 * MS SQL Server 2012 Express Edition
@@ -22,6 +24,7 @@ Software required (and tested on "Siebel Innovation Pack 2013" with):
 * DevC++ with atleast GCC 4.9.2 (for me it was DevC++ 5.11, TDM-GCC 4.9.2)
 
 **Preparation**
+
 You need to install a VirtualBox VM with Windows 2012 and SQL Server and IIS,
 with minimum 4 GB Memory, 1 CPU (more is always better). Install Siebel on it
 and configure it. This is the most tedious part. I suggest you hire a
@@ -36,11 +39,13 @@ others can be Call Center agents. Without it, you will not be able to test
 the driver.
 
 **Building the code**
+
 The code is in S_CTI folder. Open the S_CTI.dev file in DevC++, and build it
 in 32-bit release mode. I have found that Siebel application that loads the DLL
 in memory, is actually 32 bit. So, it won't be useful to build 64 bit DLL.
 
 **What is DEF file?**
+
 S_CTI.DEF is a Siebel exported definition file, that contains a sample
 Communications Driver template that I have used. I have configured it slightly
 to be used via the DLL code. You need to import this file in to Siebel, before
@@ -51,12 +56,15 @@ folder. You can change it from within Siebel as well, when you log in as siebel
 administrator, from the "Communications Drivers And Profiles" section.
 
 **Developer Documents**
+
 * Siebel CTI Administration Guide (https://docs.oracle.com/cd/E14004_01/books/SiebCTIAdm/booktitle.html or search Oracle site for its latest version.)
 
 **Understanding the SCAPI and flow**
+
 I will update the guide here, very soon.
 
 **TODO**
+
 Since this is just the bare bone implementation of SCAPI methods, there is
 lot to be done to make it fully functional. The driver is able to take commands
 and events from Siebel, and pass it some too. But the complete logic of
