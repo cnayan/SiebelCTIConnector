@@ -44,6 +44,10 @@ The code is in S_CTI folder. Open the S_CTI.dev file in DevC++, and build it
 in 32-bit release mode. I have found that Siebel application that loads the DLL
 in memory, is actually 32 bit. So, it won't be useful to build 64 bit DLL.
 
+Note that I have used C++11, hence you must enable the support for C++11 code
+compilation via project options. At the time of writing this code, it is in
+experimental stage, but worked fine.
+
 **What is DEF file?**
 
 S_CTI.DEF is a Siebel exported definition file, that contains a sample
