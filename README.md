@@ -1,7 +1,7 @@
 Siebel Call Center Connector
 ============================
 
-SCAPI implementation for a Call Center Siebel applet, to connect it to a PBX.
+SCAPI implementation for a Call Center Communications Driver, to connect it to a PBX.
 
 This Windows based sample DLL (Siebel CTI driver) implements the SCAPI method
 declarations as described by Siebel CTI Administration Guide's section
